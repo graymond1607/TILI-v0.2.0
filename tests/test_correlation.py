@@ -495,3 +495,133 @@ def test_shutdown_hypothesis_identifies_preceding_watchdog_finding():
     )
 
     assert isinstance(hypotheses, list)
+
+
+def test_shutdown_diagnostic_identifies_preceding_watchdog_trigger():
+    from tili.correlation import build_root_cause_hypotheses
+
+    watchdog = make_finding(
+        10,
+        rule_id="TILI-V2-HW",
+        instance_id="cHSM-0",
+    )
+    watchdog.title = "Watchdog restart detected"
+    watchdog.category = "Hardware"
+    watchdog.evidence = "Watchdog timeout detected"
+
+    shutdown = make_finding(
+        12,
+        rule_id="TILI-V2-SHUTDOWN",
+        instance_id="cHSM-0",
+    )
+    shutdown.title = "System Shutdown"
+    shutdown.category = "System Lifecycle"
+
+    results = build_root_cause_hypotheses(
+        [watchdog, shutdown],
+        [],
+        events=[],
+    )
+
+    diagnostic = next(
+        item for item in results
+        if item.get("event_type") == "SHUTDOWN_DIAGNOSTIC"
+    )
+
+    assert diagnostic["cause_assessment"] == "POSSIBLE_PRECEDING_TRIGGER"
+    assert diagnostic["possible_triggers"][0]["rule_id"] == "TILI-V2-HW"
+
+
+def test_shutdown_diagnostic_includes_successful_recovery_event():
+    from tili.correlation import build_root_cause_hypotheses
+
+    shutdown = make_finding(
+        10,
+        rule_id="TILI-V2-SHUTDOWN",
+        instance_id="cHSM-0",
+    )
+    shutdown.title = "System Shutdown"
+    shutdown.category = "System Lifecycle"
+
+    recovery = make_event(
+        line_number=25,
+        instance_id="cHSM-0",
+        minute=15,
+    )
+    recovery.level = "INFO"
+    recovery.message = "System startup completed successfully"
+
+    results = build_root_cause_hypotheses(
+        [shutdown],
+        [],
+        events=[recovery],
+    )
+
+    diagnostic = next(
+        item for item in results
+        if item.get("event_type") == "SHUTDOWN_DIAGNOSTIC"
+    )
+
+    assert len(diagnostic["recovery_evidence"]) == 1
+    assert diagnostic["recovery_evidence"][0]["line"] == 25
+
+
+def test_shutdown_without_preceding_error_has_undetermined_cause():
+    from tili.correlation import build_root_cause_hypotheses
+
+    shutdown = make_finding(
+        10,
+        rule_id="TILI-V2-SHUTDOWN",
+        instance_id="cHSM-0",
+    )
+    shutdown.title = "System Shutdown"
+    shutdown.category = "System Lifecycle"
+
+    results = build_root_cause_hypotheses(
+        [shutdown],
+        [],
+        events=[],
+    )
+
+    diagnostic = next(
+        item for item in results
+        if item.get("event_type") == "SHUTDOWN_DIAGNOSTIC"
+    )
+
+    assert diagnostic["cause_assessment"] == "NO_PRECEDING_ERROR_FOUND"
+    assert diagnostic["possible_triggers"] == []
+
+
+def test_shutdown_diagnostic_does_not_attribute_other_device_errors():
+    from tili.correlation import build_root_cause_hypotheses
+
+    watchdog = make_finding(
+        9,
+        identity_id="DEV-002",
+        instance_id="cHSM-0",
+        rule_id="TILI-V2-HW",
+    )
+    watchdog.category = "Hardware"
+
+    shutdown = make_finding(
+        10,
+        identity_id="DEV-001",
+        instance_id="cHSM-0",
+        rule_id="TILI-V2-SHUTDOWN",
+    )
+    shutdown.title = "System Shutdown"
+    shutdown.category = "System Lifecycle"
+
+    results = build_root_cause_hypotheses(
+        [watchdog, shutdown],
+        [],
+        events=[],
+    )
+
+    diagnostic = next(
+        item for item in results
+        if item.get("event_type") == "SHUTDOWN_DIAGNOSTIC"
+    )
+
+    assert diagnostic["possible_triggers"] == []
+    assert diagnostic["cause_assessment"] == "NO_PRECEDING_ERROR_FOUND"
