@@ -1,0 +1,18 @@
+app:
+  name: TI Log Intelligence
+  version: 0.2.0
+  max_upload_mb: 500
+  max_zip_members: 1024
+analysis:
+  correlation_window_minutes: 10
+  default_timezone: Europe/Berlin
+
+environment:
+  allowed:
+    - Production
+    - Test/RU
+  detection:
+    explicit_metadata: true
+    hostname_mapping: true
+    manual_selection: true
+  hostname_mapping: {}

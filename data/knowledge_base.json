@@ -1,0 +1,297 @@
+[
+  {
+    "id": "TILI-EBK-4181",
+    "systems": [
+      "EBK",
+      "RZK"
+    ],
+    "pattern": "(?<!\\d)4181(?!\\d)|integrit[aä]tspr[uü]fung.*Updateinformation",
+    "title": "Firmware update integrity verification pattern",
+    "severity": "HIGH",
+    "description": "The log line matches a starter signature associated with update integrity verification.",
+    "recommendation": "Check the complete update transaction, package provenance, signature/integrity metadata, device model and supported upgrade path. Compare with the official release and update documentation.",
+    "confidence": "LOW — starter signature; validate against product/version documentation."
+  },
+  {
+    "id": "TILI-EBK-4256",
+    "systems": [
+      "EBK",
+      "RZK"
+    ],
+    "pattern": "(?<!\\d)4256(?!\\d)|ECC-Zertifikat.*nicht.*vorhanden",
+    "title": "ECC certificate missing pattern",
+    "severity": "HIGH",
+    "description": "The log line matches a starter signature associated with a missing ECC certificate.",
+    "recommendation": "Identify the affected card/component and inspect the surrounding certificate-check events and approved card/certificate configuration.",
+    "confidence": "LOW — starter signature; validate against product/version documentation."
+  },
+  {
+    "id": "TILI-EBK-4257",
+    "systems": [
+      "EBK",
+      "RZK"
+    ],
+    "pattern": "(?<!\\d)4257(?!\\d)",
+    "title": "ECC certificate-related error pattern",
+    "severity": "HIGH",
+    "description": "The log line contains a starter error-code signature. The precise meaning may depend on component and firmware version.",
+    "recommendation": "Inspect surrounding lines, affected card identifiers (redacted), certificate state and the applicable error catalogue.",
+    "confidence": "LOW — confirm exact semantics before remediation."
+  },
+  {
+    "id": "TILI-EBK-4033",
+    "systems": [
+      "EBK",
+      "RZK"
+    ],
+    "pattern": "(?<!\\d)4033(?!\\d)",
+    "title": "Card-terminal communication error pattern",
+    "severity": "MEDIUM",
+    "description": "The log line matches a starter signature previously associated with card-terminal communication problems.",
+    "recommendation": "Check terminal reachability, connection state, network path and adjacent terminal/service events. Confirm the meaning for this log source and version.",
+    "confidence": "LOW — starter signature; validate against product/version documentation."
+  },
+  {
+    "id": "TILI-HSM-SYNC-001",
+    "systems": [
+      "HSM"
+    ],
+    "pattern": "0xB2010008",
+    "title": "HSM/cHSM synchronisation packet error pattern",
+    "severity": "HIGH",
+    "description": "The line contains the supplied HSM synchronisation error signature.",
+    "recommendation": "Correlate repeated events by physical HSM and cHSM instance; compare pre/post-reboot behaviour and check whether subsequent synchronisation attempts succeed.",
+    "confidence": "MEDIUM — signature supplied for this prototype; confirm interpretation with the relevant HSM documentation."
+  },
+  {
+    "id": "TILI-TIG-TLS-001",
+    "systems": [
+      "TIG"
+    ],
+    "pattern": "SSLHandshakeException|TLS handshake failed|certificate verify failed",
+    "title": "TLS handshake or certificate validation failure",
+    "severity": "HIGH",
+    "description": "The line matches a TLS handshake/certificate validation signature.",
+    "recommendation": "Check the peer identity, certificate chain, validity period, trust store, system time and negotiated TLS settings. Do not expose certificate private material.",
+    "confidence": "MEDIUM — generic protocol signature; inspect full handshake context."
+  },
+  {
+    "id": "TILI-TIG-HTTP-5XX",
+    "systems": [
+      "TIG"
+    ],
+    "pattern": "\\bHTTP[/ ]?5\\d\\d\\b|status[=: ]+5\\d\\d",
+    "title": "HTTP 5xx server-side response pattern",
+    "severity": "HIGH",
+    "description": "The line appears to contain an HTTP 5xx response.",
+    "recommendation": "Identify the upstream service, request/correlation ID and time window; correlate gateway and upstream logs before assigning ownership.",
+    "confidence": "MEDIUM — generic HTTP signature."
+  },
+  {
+    "id": "TILI-GENERIC-TIMEOUT",
+    "systems": [
+      "ALL"
+    ],
+    "pattern": "\\b(timeout|timed out|Zeitüberschreitung)\\b",
+    "title": "Timeout pattern",
+    "severity": "MEDIUM",
+    "description": "The line contains a timeout-related term.",
+    "recommendation": "Check the operation, peer, duration, retry behaviour and adjacent network/service events. A timeout alone does not identify the failing layer.",
+    "confidence": "LOW — generic keyword signature."
+  },
+  {
+    "id": "TILI-V2-NET",
+    "systems": [
+      "ALL"
+    ],
+    "category": "Network",
+    "pattern": "\\b(connection refused|connection reset|no route to host|network is unreachable|broken pipe|packet loss|interface down|link is down|martian source)\\b",
+    "title": "Network connectivity or interface anomaly",
+    "severity": "HIGH",
+    "description": "Starter signature only. Validate component, product version and surrounding log context before assigning cause.",
+    "recommendation": "Check interface, route, peer reachability, firewall and adjacent endpoint logs.",
+    "confidence": "LOW — generic starter regex; validate against approved internal documentation and anonymised representative logs."
+  },
+  {
+    "id": "TILI-V2-CARD",
+    "systems": [
+      "EBK"
+    ],
+    "category": "Card Terminals",
+    "pattern": "(card.?terminal|kartenterminal).{0,100}(not available|unavailable|nicht verfügbar|keine antwort|no response|keep.?alive)|EC_CardTerminal_Not_Available",
+    "title": "Card-terminal availability or keep-alive failure",
+    "severity": "HIGH",
+    "description": "Starter signature only. Validate component, product version and surrounding log context before assigning cause.",
+    "recommendation": "Identify terminal; inspect keep-alive sequence, connection closure and network path.",
+    "confidence": "LOW — generic starter regex; validate against approved internal documentation and anonymised representative logs."
+  },
+  {
+    "id": "TILI-V2-VPN",
+    "systems": [
+      "ALL"
+    ],
+    "category": "VPN",
+    "pattern": "\\b(ti.?vpn|vpn).{0,80}(tunnel|connection|verbindung).{0,50}(failed|failure|aborted|nicht aufgebaut|down)|REG_ERROR_[A-Z0-9_]+|SERVER_NOT_RESOLVED_REGSERVER",
+    "title": "VPN tunnel, registration or negotiation failure",
+    "severity": "HIGH",
+    "description": "Starter signature only. Validate component, product version and surrounding log context before assigning cause.",
+    "recommendation": "Inspect registration state, DNS, IKE/IPsec, endpoint reachability and certificates.",
+    "confidence": "LOW — generic starter regex; validate against approved internal documentation and anonymised representative logs."
+  },
+  {
+    "id": "TILI-V2-DNS",
+    "systems": [
+      "ALL"
+    ],
+    "category": "DNS",
+    "pattern": "\\b(DNS_NAME_RESOLUTION_ERROR|name or service not known|temporary failure in name resolution|could not resolve|name resolution failed|SERVFAIL|NXDOMAIN)\\b",
+    "title": "DNS resolution failure",
+    "severity": "HIGH",
+    "description": "Starter signature only. Validate component, product version and surrounding log context before assigning cause.",
+    "recommendation": "Distinguish resolver reachability from missing records; inspect configured resolver and query target.",
+    "confidence": "LOW — generic starter regex; validate against approved internal documentation and anonymised representative logs."
+  },
+  {
+    "id": "TILI-V2-GSMCK",
+    "systems": [
+      "HSM"
+    ],
+    "category": "gSMC-K",
+    "pattern": "\\b0xB2010008\\b|Unable transfer sync packet to cHSM|gSMC-K.{0,100}(sync|synchroni[sz]|transfer).{0,40}(failed|failure|error|timeout)",
+    "title": "gSMC-K synchronisation or transfer failure",
+    "severity": "HIGH",
+    "description": "Starter signature only. Validate component, product version and surrounding log context before assigning cause.",
+    "recommendation": "Compare cHSM IDs, physical HSM mapping, retries and subsequent successful transfers.",
+    "confidence": "LOW — generic starter regex; validate against approved internal documentation and anonymised representative logs."
+  },
+  {
+    "id": "TILI-V2-SMCB",
+    "systems": [
+      "EBK"
+    ],
+    "category": "SMC-B / SMC-K / HBA",
+    "pattern": "\\b(SMC-B|SMC-K|HBA).{0,100}(card|karte|session|access).{0,50}(failed|failure|error|blocked|denied)|ReadCardCertificate.{0,100}(error|failed|elevated)",
+    "title": "SMC-B/SMC-K/HBA card operation anomaly",
+    "severity": "HIGH",
+    "description": "Starter signature only. Validate component, product version and surrounding log context before assigning cause.",
+    "recommendation": "Inspect card type, operation and session context; redact card identifiers.",
+    "confidence": "LOW — generic starter regex; validate against approved internal documentation and anonymised representative logs."
+  },
+  {
+    "id": "TILI-V2-CERT",
+    "systems": [
+      "ALL"
+    ],
+    "category": "Certificates",
+    "pattern": "\\b(certificate|zertifikat).{0,60}(expired|abgelaufen|not yet valid|ungültig|invalid|verification failed)|CERTIFICATE_DOES_NOT_EXIST_ON_CARD|CRYPT_CERTIFICATE_DOES_NOT_EXIST_ON_CARD|ECC-Zertifikat.{0,30}nicht.{0,20}vorhanden|CA_CERT_MISSING|\\b(CRL|OCSP|TSL).{0,100}(download|validation).{0,40}(failed|failure|error)",
+    "title": "Certificate, revocation or trust-list failure",
+    "severity": "HIGH",
+    "description": "Starter signature only. Validate component, product version and surrounding log context before assigning cause.",
+    "recommendation": "Check certificate role, chain, validity, system time, trust anchors and retrieval endpoint.",
+    "confidence": "LOW — generic starter regex; validate against approved internal documentation and anonymised representative logs."
+  },
+  {
+    "id": "TILI-V2-HW",
+    "systems": [
+      "ALL"
+    ],
+    "category": "Hardware",
+    "pattern": "\\b(watchdog|kernel panic|hardware error|I/O error|device failure|machine check|uncorrectable error|power loss|thermal|over.?temperature)\\b",
+    "title": "Hardware, kernel or host lifecycle anomaly",
+    "severity": "CRITICAL",
+    "description": "Starter signature only. Validate component, product version and surrounding log context before assigning cause.",
+    "recommendation": "Preserve system evidence and correlate uptime, service restart, hardware health and vendor diagnostics.",
+    "confidence": "LOW — generic starter regex; validate against approved internal documentation and anonymised representative logs."
+  },
+  {
+    "id": "TILI-V2-HSMHW",
+    "systems": [
+      "HSM"
+    ],
+    "category": "Hardware",
+    "pattern": "\\b(HSM|CryptoServer).{0,80}(not ready|offline|hardware failure|device fault|tamper|temperature alarm)\\b",
+    "title": "HSM hardware or readiness anomaly",
+    "severity": "CRITICAL",
+    "description": "Starter signature only. Validate component, product version and surrounding log context before assigning cause.",
+    "recommendation": "Check physical HSM status, vendor diagnostics, environmental alarms and redundant peer.",
+    "confidence": "LOW — generic starter regex; validate against approved internal documentation and anonymised representative logs."
+  },
+  {
+    "id": "TILI-V2-SW",
+    "systems": [
+      "ALL"
+    ],
+    "category": "Software",
+    "pattern": "\\b(uncaught exception|fatal exception|segmentation fault|core dumped|application crashed|process exited unexpectedly|service failed|daemon failed|stopped unexpectedly)\\b",
+    "title": "Software crash or service failure",
+    "severity": "HIGH",
+    "description": "Starter signature only. Validate component, product version and surrounding log context before assigning cause.",
+    "recommendation": "Identify process, stack trace, software version, dependency and restart outcome.",
+    "confidence": "LOW — generic starter regex; validate against approved internal documentation and anonymised representative logs."
+  },
+  {
+    "id": "TILI-V2-SEC-AUTH",
+    "systems": [
+      "ALL"
+    ],
+    "category": "Security",
+    "pattern": "\\b(authentication failed|auth failed|unauthori[sz]ed|access denied|permission denied|invalid credentials|login failed)\\b",
+    "title": "Authentication or access-control failure",
+    "severity": "HIGH",
+    "description": "Starter signature only. Validate component, product version and surrounding log context before assigning cause.",
+    "recommendation": "Validate principal, mechanism, policy and audit trail; never collect secrets.",
+    "confidence": "LOW — generic starter regex; validate against approved internal documentation and anonymised representative logs."
+  },
+  {
+    "id": "TILI-V2-SEC-INTEGRITY",
+    "systems": [
+      "ALL"
+    ],
+    "category": "Security",
+    "pattern": "\\b(tamper|intrusion|security violation|integrity violation|signature verification failed|integrity check failed|replay detected|nonce reuse)\\b",
+    "title": "Security or integrity violation indicator",
+    "severity": "CRITICAL",
+    "description": "Starter signature only. Validate component, product version and surrounding log context before assigning cause.",
+    "recommendation": "Preserve evidence and follow incident-response procedures; verify exact security context.",
+    "confidence": "LOW — generic starter regex; validate against approved internal documentation and anonymised representative logs."
+  },
+  {
+    "id": "TILI-V2-SEC-TLS",
+    "systems": [
+      "ALL"
+    ],
+    "category": "Security",
+    "pattern": "\\b(TLS|SSL).{0,80}(handshake failed|peer not authenticated|hostname verification failed|certificate verify failed)\\b",
+    "title": "TLS peer authentication or secure-channel failure",
+    "severity": "HIGH",
+    "description": "Starter signature only. Validate component, product version and surrounding log context before assigning cause.",
+    "recommendation": "Inspect peer identity, certificate chain, trust store, protocol negotiation and system time.",
+    "confidence": "LOW — generic starter regex; validate against approved internal documentation and anonymised representative logs."
+  },
+  {
+    "id": "TILI-V2-SEC-CRYPTO",
+    "systems": [
+      "ALL"
+    ],
+    "category": "Security",
+    "pattern": "\\b(message authentication failed|MAC verification failed|secure messaging failed|0xB2010056|0xB08A8021)\\b",
+    "title": "Cryptographic or secure-messaging failure",
+    "severity": "CRITICAL",
+    "description": "Starter signature only. Validate component, product version and surrounding log context before assigning cause.",
+    "recommendation": "Correlate channel closure, card reset and HSM diagnostics; do not retry blindly.",
+    "confidence": "LOW — generic starter regex; validate against approved internal documentation and anonymised representative logs."
+  },
+  {
+    "id": "TILI-V2-TIMEOUT",
+    "systems": [
+      "ALL"
+    ],
+    "category": "General / Availability",
+    "pattern": "\\b(timeout|timed out|Zeitüberschreitung)\\b",
+    "title": "Timeout pattern",
+    "severity": "MEDIUM",
+    "description": "Starter signature only. Validate component, product version and surrounding log context before assigning cause.",
+    "recommendation": "Identify operation, peer, duration and retry behaviour; timeout alone does not identify root cause.",
+    "confidence": "LOW — generic starter regex; validate against approved internal documentation and anonymised representative logs."
+  }
+]
